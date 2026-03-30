@@ -18,7 +18,7 @@
  */
 use crate::{
     bpf_program::{BpfProgram, Process},
-    helpers::program_type_to_string,
+    helpers::program_type_as_str,
 };
 use circular_buffer::CircularBuffer;
 use libbpf_rs::{query::ProgInfoIter, Iter, Link};
@@ -191,7 +191,7 @@ impl App {
                 let processes = pid_map.get(&prog.id).cloned().unwrap_or_default();
 
                 // Skip bpf program if it does not match filter
-                let bpf_type = program_type_to_string(prog.ty);
+                let bpf_type = program_type_as_str(&prog.ty);
                 if !filter_str.is_empty()
                     && !bpf_type.to_lowercase().contains(&filter_str)
                     && !prog_name.to_lowercase().contains(&filter_str)
@@ -463,7 +463,7 @@ mod tests {
         let mut app = App::new(1);
         let prog_1 = BpfProgram {
             id: 1,
-            bpf_type: "test".to_string(),
+            bpf_type: "test",
             name: "test".to_string(),
             prev_runtime_ns: 100,
             run_time_ns: 200,
@@ -476,7 +476,7 @@ mod tests {
 
         let prog_2 = BpfProgram {
             id: 2,
-            bpf_type: "test".to_string(),
+            bpf_type: "test",
             name: "test".to_string(),
             prev_runtime_ns: 100,
             run_time_ns: 200,
@@ -579,7 +579,7 @@ mod tests {
         let mut app = App::new(1);
         let prog_1 = BpfProgram {
             id: 1,
-            bpf_type: "test".to_string(),
+            bpf_type: "test",
             name: "test".to_string(),
             prev_runtime_ns: 100,
             run_time_ns: 200,
@@ -592,7 +592,7 @@ mod tests {
 
         let prog_2 = BpfProgram {
             id: 2,
-            bpf_type: "test".to_string(),
+            bpf_type: "test",
             name: "test".to_string(),
             prev_runtime_ns: 100,
             run_time_ns: 200,

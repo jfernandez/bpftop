@@ -159,7 +159,7 @@ dependencies = [
  "clap",
  "crossterm",
  "libbpf-cargo",
- "libbpf-rs",
+ "libbpf-rs 0.25.0",
  "libbpf-sys",
  "nix",
  "procfs",
@@ -752,7 +752,7 @@ dependencies = [
  "anyhow",
  "cargo_metadata",
  "clap",
- "libbpf-rs",
+ "libbpf-rs 0.24.4",
  "memmap2",
  "regex",
  "semver",
@@ -766,6 +766,18 @@ name = "libbpf-rs"
 version = "0.24.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d51b943363864472bf306570a7076cbfa84571a403b98f59d18af4c4135271ca"
+dependencies = [
+ "bitflags 2.11.0",
+ "libbpf-sys",
+ "libc",
+ "vsprintf",
+]
+
+[[package]]
+name = "libbpf-rs"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e23d252d93e246c8787198369f06806c99c5077b5295be29505295f4e5426dc4"
 dependencies = [
  "bitflags 2.11.0",
  "libbpf-sys",
