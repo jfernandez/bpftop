@@ -240,7 +240,7 @@ impl App {
             match *sort_col {
                 SortColumn::Ascending(col_idx) | SortColumn::Descending(col_idx) => {
                     match col_idx {
-                        1 => items.sort_unstable_by(|a, b| a.bpf_type.cmp(&b.bpf_type)),
+                        1 => items.sort_unstable_by(|a, b| a.bpf_type.cmp(b.bpf_type)),
                         2 => items.sort_unstable_by(|a, b| a.name.cmp(&b.name)),
                         3 => items.sort_unstable_by(|a, b| {
                             a.period_average_runtime_ns()
