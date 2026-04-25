@@ -72,7 +72,7 @@ jobs:
           PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--model claude-opus-4-6 --allowedTools "Bash(gh pr comment:*)"'
+          claude_args: '--model claude-opus-4-7 --allowedTools "Bash(gh pr comment:*)"'
           prompt: |
             The Rust CI workflow failed on PR #${{ github.event.workflow_run.pull_requests[0].number }}.
 

@@ -25,7 +25,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--model claude-opus-4-6 --allowedTools "Bash(scripts/triage-issue.sh:*)"'
+          claude_args: '--model claude-opus-4-7 --allowedTools "Bash(scripts/triage-issue.sh:*)"'
           allowed_non_write_users: "*"
           prompt: |
             Triage issue #${{ github.event.issue.number }} using ONLY the
