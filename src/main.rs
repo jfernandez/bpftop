@@ -30,7 +30,6 @@ use crossterm::terminal::{
 use libbpf_rs::skel::{OpenSkel, Skel, SkelBuilder};
 use libbpf_sys::bpf_enable_stats;
 use pid_iter::PidIterSkelBuilder;
-use procfs::KernelVersion;
 use ratatui::backend::{Backend, CrosstermBackend};
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style, Stylize};
@@ -69,6 +68,7 @@ const SORT_CONTROLS_FOOTER: &str =
 const SORT_INFO_FOOTER: &str = "(Esc) back";
 
 const PROCFS_BPF_STATS_ENABLED: &str = "/proc/sys/kernel/bpf_stats_enabled";
+const PROCFS_KERNEL_OSRELEASE: &str = "/proc/sys/kernel/osrelease";
 
 const TABLE_HEADER_HEIGHT: u16 = 1;
 const TABLE_HEADER_MARGIN: u16 = 1;
@@ -157,16 +157,16 @@ fn main() -> Result<()> {
     // Try to set this subscriber as the global default
     registry.try_init()?;
 
-    let kernel_version = KernelVersion::current()?;
+    let kernel_version = read_kernel_version()?;
     let _owned_fd: OwnedFd;
     let mut stats_enabled_via_procfs = false;
     let mut iter_link = None;
 
     info!("Starting bpftop...");
-    info!("Kernel: {:?}", kernel_version);
+    info!("Kernel: {}.{}", kernel_version.0, kernel_version.1);
 
     // enable BPF stats via syscall if kernel version >= 5.8
-    if kernel_version >= KernelVersion::new(5, 8, 0) {
+    if kernel_version >= (5, 8) {
         let fd = unsafe { bpf_enable_stats(libbpf_sys::BPF_STATS_RUN_TIME) };
         if fd < 0 {
             return Err(anyhow!("Failed to enable BPF stats via syscall"));
@@ -240,6 +240,27 @@ fn procfs_bpf_stats_is_enabled() -> Result<bool> {
     fs::read_to_string(PROCFS_BPF_STATS_ENABLED)
         .context(format!("Failed to read from {PROCFS_BPF_STATS_ENABLED}"))
         .map(|value| value.trim() == "1")
+}
+
+fn read_kernel_version() -> Result<(u32, u32)> {
+    let raw = fs::read_to_string(PROCFS_KERNEL_OSRELEASE)
+        .with_context(|| format!("Failed to read from {PROCFS_KERNEL_OSRELEASE}"))?;
+    parse_kernel_version(raw.trim()).with_context(|| {
+        format!("Failed to parse kernel version from {PROCFS_KERNEL_OSRELEASE}: {raw:?}")
+    })
+}
+
+fn parse_kernel_version(release: &str) -> Result<(u32, u32)> {
+    let mut parts = release.split(['.', '-']);
+    let major = parts
+        .next()
+        .ok_or_else(|| anyhow!("missing major component"))?
+        .parse()?;
+    let minor = parts
+        .next()
+        .ok_or_else(|| anyhow!("missing minor component"))?
+        .parse()?;
+    Ok((major, minor))
 }
 
 fn load_pid_iter(iter_link: &mut Option<libbpf_rs::Link>) -> Result<()> {
@@ -691,5 +712,28 @@ fn render_footer(f: &mut Frame, app: &mut App, area: Rect) {
             f.render_widget(sort_footer, split_area[0]);
         }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_kernel_version;
+
+    #[test]
+    fn parses_common_osrelease_formats() {
+        assert_eq!(parse_kernel_version("5.15.0").unwrap(), (5, 15));
+        assert_eq!(parse_kernel_version("7.0.1").unwrap(), (7, 0));
+        assert_eq!(parse_kernel_version("5.15.0-78-generic").unwrap(), (5, 15));
+        assert_eq!(parse_kernel_version("6.1.0-rpi7-rpi-v8").unwrap(), (6, 1));
+        assert_eq!(parse_kernel_version("5.8.0").unwrap(), (5, 8));
+        assert_eq!(parse_kernel_version("4.19").unwrap(), (4, 19));
+    }
+
+    #[test]
+    fn rejects_malformed_osrelease() {
+        assert!(parse_kernel_version("").is_err());
+        assert!(parse_kernel_version("5").is_err());
+        assert!(parse_kernel_version("linux-5.15.0").is_err());
+        assert!(parse_kernel_version("5.x").is_err());
     }
 }
