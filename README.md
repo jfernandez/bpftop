@@ -8,13 +8,15 @@
 
 ## Installation
 
-To download the latest x86_64 release of `bpftop`, use the following command:
+The install script downloads the latest release for your architecture (x86_64 or aarch64), verifies its SHA-256 against the digest published by GitHub, and installs it to `~/.local/bin` (or `/usr/local/bin` when run as root):
 
 ```bash
-curl -fLJ https://github.com/jfernandez/bpftop/releases/latest/download/bpftop-x86_64-unknown-linux-gnu -o bpftop && chmod +x bpftop
+curl -fsSL https://bpftop.sh/install | sh
 ```
 
-or install via your distribution's package manager:
+Pass `--version <tag>` to pin a specific release or `--bin-dir <path>` to choose the install directory. Run the script with `--help` to see all options.
+
+Or install via your distribution's package manager:
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/bpftop.svg)](https://repology.org/project/bpftop/versions)
 
@@ -28,19 +30,18 @@ sudo dnf install bpftop
 
 ### Arch Linux
 
-You can install `bpftop` from the [official repositories](https://packages.fedoraproject.org/pkgs/bpftop/bpftop/) using [pacman](https://wiki.archlinux.org/title/pacman):
+You can install `bpftop` from the [official repositories](https://archlinux.org/packages/extra/x86_64/bpftop/) using [pacman](https://wiki.archlinux.org/title/pacman):
 
 ```bash
 sudo pacman -S bpftop
 ```
 
 ### Nix
-You can install bpftop from the NixOS 24.11 stable channel:
 
-```
-nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs
-nix-channel --update
-nix-env -iA nixpkgs.bpftop
+Install `bpftop` from nixpkgs:
+
+```bash
+nix profile install nixpkgs#bpftop
 ```
 
 ## Features
@@ -70,7 +71,7 @@ nix-env -iA nixpkgs.bpftop
 Run the following command to start `bpftop` on your host:
 
 ```bash
-sudo ./bpftop
+sudo bpftop
 ```
 
 ### Command-line Options
@@ -82,13 +83,13 @@ sudo ./bpftop
 Examples:
 ```bash
 # Start with default 1-second refresh
-sudo ./bpftop
+sudo bpftop
 
 # Update every 2 seconds
-sudo ./bpftop -d 2
+sudo bpftop -d 2
 
 # Update every 5 seconds
-sudo ./bpftop --delay 5
+sudo bpftop --delay 5
 ```
 
 ### Interactive Controls
@@ -156,6 +157,13 @@ sudo dnf install -y zlib-devel elfutils-libelf-devel clang libbpf-devel
 cargo build
 
 # Release build
+cargo build --release
+```
+
+Alternatively, the repository ships a Nix flake with a pinned dev shell that includes `clang`, `libbpf`, and the Rust toolchain:
+
+```bash
+nix develop
 cargo build --release
 ```
 
