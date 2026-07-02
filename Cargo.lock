@@ -221,9 +221,9 @@ checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
 
 [[package]]
 name = "circular-buffer"
-version = "1.1.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23bdce1da528cadbac4654b5632bfcd8c6c63e25b1d42cea919a95958790b51d"
+checksum = "7f5610398bbf405be68c4daeadee379d4dca31226cdf9076746a875bc58a69e3"
 
 [[package]]
 name = "clap"

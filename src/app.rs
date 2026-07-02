@@ -20,7 +20,7 @@ use crate::{
     bpf_program::{BpfProgram, Process},
     helpers::program_type_as_str,
 };
-use circular_buffer::CircularBuffer;
+use circular_buffer::FixedCircularBuffer;
 use libbpf_rs::{query::ProgInfoIter, Iter, Link};
 use ratatui::widgets::ScrollbarState;
 use ratatui::widgets::TableState;
@@ -42,7 +42,7 @@ pub struct App {
     pub vertical_scroll_state: ScrollbarState,
     pub header_columns: [String; 7],
     pub items: Arc<Mutex<Vec<BpfProgram>>>,
-    pub data_buf: Arc<Mutex<CircularBuffer<20, PeriodMeasure>>>,
+    pub data_buf: Arc<Mutex<FixedCircularBuffer<PeriodMeasure, 20>>>,
     pub max_cpu: f64,
     pub max_eps: i64,
     pub max_runtime: u64,
@@ -140,7 +140,7 @@ impl App {
                 String::from("Total CPU %"),
             ],
             items: Arc::new(Mutex::new(vec![])),
-            data_buf: Arc::new(Mutex::new(CircularBuffer::<20, PeriodMeasure>::new())),
+            data_buf: Arc::new(Mutex::new(FixedCircularBuffer::<PeriodMeasure, 20>::new())),
             max_cpu: 0.0,
             max_eps: 0,
             max_runtime: 0,
